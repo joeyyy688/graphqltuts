@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:graphqltuts/graphql_operations/queries/readData.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initHiveForFlutter();
+
   runApp(const MyApp());
 }
 
@@ -11,20 +15,30 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    final HttpLink httpLink = HttpLink('https://countries.trevorblades.com/');
+
+    final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
+      GraphQLClient(
+        link: httpLink,
+        cache: GraphQLCache(store: HiveStore()),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+
+    return GraphQLProvider(
+      client: client,
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: const MyHomePage(),
+      ),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -43,20 +57,38 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('GraphQL CLIENT'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      body: Query(
+        builder: (result, {fetchMore, refetch}) {
+          if (result.isLoading) {
+            return const CircularProgressIndicator();
+          }
+
+          if (result.data == null) {
+            return const Text('No Data Found !');
+          }
+
+          debugPrint(result.data.toString());
+
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Text(
+                  'You have pushed the button this many times:',
+                ),
+                Text(
+                  '$_counter',
+                  style: Theme.of(context).textTheme.headline4,
+                ),
+              ],
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+          );
+        },
+        options: QueryOptions(
+          document:
+              gql(readGlobeData), /*variables: <String, dynamic>{'code': 'AS'}*/
         ),
       ),
       floatingActionButton: FloatingActionButton(
