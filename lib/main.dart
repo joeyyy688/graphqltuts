@@ -71,19 +71,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
           debugPrint(result.data.toString());
 
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                const Text(
-                  'You have pushed the button this many times:',
-                ),
-                Text(
-                  '$_counter',
-                  style: Theme.of(context).textTheme.headline4,
-                ),
-              ],
-            ),
+          return ListView.builder(
+            itemCount: result.data!['countries'].length,
+            itemBuilder: (context, index) =>
+                Text('${result.data!['countries'][index]['name']}'),
           );
         },
         options: QueryOptions(
