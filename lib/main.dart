@@ -15,11 +15,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final HttpLink httpLink = HttpLink('https://countries.trevorblades.com/');
+    final HttpLink httpLink = HttpLink('https://hasura.io/learn/graphql');
+
+    Link linkk;
+
+    final AuthLink authLinkk = AuthLink(
+        getToken: () =>
+            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlZGluam9leUBnbWFpbC5jb20iLCJuYW1lIjoiZWRpbmpvZXkiLCJpYXQiOjE2NDIxMDcyMTkuMzA2LCJpc3MiOiJodHRwczovL2hhc3VyYS5pby9sZWFybi8iLCJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsidXNlciJdLCJ4LWhhc3VyYS11c2VyLWlkIjoiZWRpbmpvZXlAZ21haWwuY29tIiwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoidXNlciIsIngtaGFzdXJhLXJvbGUiOiJ1c2VyIn0sImV4cCI6MTY0MjE5MzYxOX0.SvSwshjvrEgjgd9iV-4UZM8YIUdzBj0l78IwiGrIEkE');
+
+    linkk = authLinkk.concat(httpLink);
 
     final ValueNotifier<GraphQLClient> client = ValueNotifier<GraphQLClient>(
       GraphQLClient(
-        link: httpLink,
+        link: linkk,
         cache: GraphQLCache(store: HiveStore()),
       ),
     );
@@ -45,14 +53,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,19 +71,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
           debugPrint(result.data.toString());
 
-          return ListView.builder(
-            itemCount: result.data!['countries'].length,
-            itemBuilder: (context, index) =>
-                Text('${result.data!['countries'][index]['name']}'),
-          );
+          return const Text('Data Available');
         },
         options: QueryOptions(
-          document:
-              gql(readGlobeData), /*variables: <String, dynamic>{'code': 'AS'}*/
-        ),
+            document: gql(readData),
+            variables: <String, dynamic>{'numberOfItems': 4}),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: () {},
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
