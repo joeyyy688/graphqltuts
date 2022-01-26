@@ -69,6 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
             return const Text('No Data Found !');
           }
 
+          print('result.isOptimistic -->> ${result.isOptimistic}');
+
+          print('result.isConcrete --->> ${result.isConcrete}');
+
           debugPrint(result.data.toString());
 
           return const Text('Data Available');
